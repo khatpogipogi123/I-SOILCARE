@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>I-SOILCARE: Soil Analysis and Crop Recommendation</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #eeeeee;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.app {
+    width: 390px;
+    min-height: 100vh;
+    background: #f7faf7;
+    overflow: hidden;
+}
+
+/* HEADER */
+
+.header {
+    background: #087f3f;
+    color: white;
+    padding: 25px 22px 30px;
+    border-radius: 0 0 28px 28px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-logo {
+    font-size: 25px;
+}
+
+.header-wifi {
+    font-size: 22px;
+}
+
+.header h1 {
+    font-size: 22px;
+    margin-top: 20px;
+}
+
+.header p {
+    font-size: 13px;
+    margin-top: 7px;
+    opacity: .9;
+}
+
+/* CONNECTION */
+
+.connection {
+    margin: -18px 20px 15px;
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
+
+.connected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #087f3f;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background: #20b866;
+    border-radius: 50%;
+}
+
+/* LOCATION */
+
+.location {
+    margin: 15px 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+.location-icon {
+    width: 40px;
+    height: 40px;
+    background: #e3f6e9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.location strong {
+    font-size: 14px;
+}
+
+.location small {
+    display: block;
+    color: #777;
+    margin-top: 3px;
+}
+
+/* SECTION */
+
+.section-title {
+    margin: 25px 20px 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+}
+
+/* SENSOR DATA */
+
+.sensor-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 20px;
+}
+
+.sensor-card {
+    background: white;
+    border: 1px solid #e8eee9;
+    border-radius: 14px;
+    min-height: 82px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 3px 10px rgba(30,65,42,.05);
+}
+
+.sensor-icon {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #e8f5ec;
+    font-size: 23px;
+}
+
+.sensor-name {
+    color: #526258;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sensor-value {
+    margin-left: auto;
+    color: #183d29;
+    font-size: 21px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.sensor-status {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: #edf7ef;
+    color: #087f3f;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.sensor-card-ph .sensor-icon {
+    background: #f1edfb;
+}
+
+.sensor-card-temperature .sensor-icon {
+    background: #fff1e8;
+}
+
+/* ANALYZE BUTTON */
+
+.analyze {
+    margin: 20px;
+    width: calc(100% - 40px);
+    height: 52px;
+    background: #087f3f;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.analyze:hover {
+    background: #056c35;
+}
+
+/* LOADING */
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 10px;
+    color: #087f3f;
+    font-size: 13px;
+}
+
+/* DETECTED SOIL */
+
+.soil-result {
+    margin: 15px 20px;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07);
+    border-left: 5px solid #087f3f;
+}
+
+.soil-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.soil-icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 15px;
+    background: #e9f6ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+.soil-title {
+    font-size: 12px;
+    color: #777;
+}
+
+.soil-type {
+    font-size: 24px;
+    font-weight: bold;
+    color: #087f3f;
+    margin-top: 3px;
+}
+
+.soil-description {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.soil-condition {
+    margin-top: 15px;
+    background: #f0f9f2;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #087f3f;
+}
+
+/* SOIL HEALTH */
+
+.health-card {
+    background: white;
+    margin: 15px 20px;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+.health-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.circle {
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    background:
+        conic-gradient(
+            #079447 0deg 306deg,
+            #e4eee6 306deg 360deg
+        );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circle-inner {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.circle-number {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.circle-text {
+    font-size: 11px;
+    color: #087f3f;
+    font-weight: bold;
+}
+
+.health-info h3 {
+    font-size: 15px;
+}
+
+.health-info p {
+    font-size: 12px;
+    color: #777;
+    margin-top: 7px;
+    line-height: 1.5;
+}
+
+/* CROP RECOMMENDATION */
+
+.recommendation {
+    margin: 15px 20px 30px;
+}
+
+.crop {
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+.crop.best {
+    border: 2px solid #20a957;
+}
+
+.crop-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.crop-icon {
+    width: 50px;
+    height: 50px;
+    background: #e9f7ec;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+}
+
+.crop-name {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.crop-type {
+    font-size: 11px;
+    color: #777;
+    margin-top: 3px;
+}
+
+.crop-score {
+    color: #087f3f;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* RECOMMENDATION MESSAGE */
+
+.recommendation-message {
+    margin: 20px;
+    background: #eaf7ed;
+    border-radius: 15px;
+    padding: 15px;
+    color: #087f3f;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="header-top">
+
+            <div class="header-logo">
+                🌱
+            </div>
+
+            <div class="header-wifi">
+                📡
+            </div>
+
+        </div>
+
+        <h1>
+            I-SOILCARE: Soil Analysis and Crop Recommendation
+        </h1>
+
+        <p>
+            Detect your soil and find the best crop
+        </p>
+
+    </div>
+
+
+    <!-- CONNECTION -->
+
+    <div class="connection">
+
+        <div class="connected">
+
+            <div class="dot"></div>
+
+            IoT Device Connected
+
+        </div>
+
+        <span>📶</span>
+
+    </div>
+
+
+    <!-- LOCATION -->
+
+    <div class="location">
+
+        <div class="location-icon">
+            📍
+        </div>
+
+        <div>
+
+            <strong>
+                Farm Location
+            </strong>
+
+            <small>
+                Agoncillo, Batangas, Philippines
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- DETECTED SOIL -->
+
+    <div class="section-title">
+
+        🪨 Detected Soil Type
+
+    </div>
+
+
+    <div class="soil-result">
+
+        <div class="soil-header">
+
+            <div class="soil-icon">
+                🌱
+            </div>
+
+            <div>
+
+                <div class="soil-title">
+                    Soil detected
+                </div>
+
+                <div
+                    class="soil-type"
+                    id="soilType">
+
+                    Loam Soil
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="soil-description"
+            id="soilDescription">
+
+            Loam soil is a balanced soil containing
+            sand, silt, and clay. It has good drainage
+            and is suitable for many crops.
+
+        </div>
+
+
+        <div class="soil-condition">
+
+            ✅ Soil condition:
+            <strong>Suitable for planting</strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- SOIL SENSOR DATA -->
+
+    <div class="section-title">
+
+        🌱 Soil Sensor Data
+
+    </div>
+
+
+    <div class="sensor-grid">
+
+        <!-- MOISTURE -->
+
+        <div class="sensor-card sensor-card-moisture">
+
+            <div class="sensor-icon">
+                💧
+            </div>
+
+            <div>
+                <div class="sensor-name">
+                    Soil Moisture
+                </div>
+                <div class="sensor-status">
+                    Optimal
+                </div>
+            </div>
+
+            <div
+                class="sensor-value"
+                id="moisture">
+                75%
+            </div>
+
+        </div>
+
+
+        <!-- PH -->
+
+        <div class="sensor-card sensor-card-ph">
+
+            <div class="sensor-icon">
+                🧪
+            </div>
+
+            <div>
+                <div class="sensor-name">
+                    Soil pH
+                </div>
+                <div class="sensor-status">
+                    Good
+                </div>
+            </div>
+
+            <div
+                class="sensor-value"
+                id="ph">
+                6.5
+            </div>
+
+        </div>
+
+
+        <!-- TEMPERATURE -->
+
+        <div class="sensor-card sensor-card-temperature">
+
+            <div class="sensor-icon">
+                🌡️
+            </div>
+
+            <div>
+                <div class="sensor-name">
+                    Soil Temperature
+                </div>
+                <div class="sensor-status">
+                    Normal
+                </div>
+            </div>
+
+            <div
+                class="sensor-value"
+                id="temperature">
+                25°C
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ANALYZE BUTTON -->
+
+    <button
+        class="analyze"
+        onclick="analyzeSoil()">
+
+        🔍 DETECT SOIL & RECOMMEND CROP
+
+    </button>
+
+
+    <div
+        class="loading"
+        id="loading">
+
+        📡 Analyzing soil condition...
+
+    </div>
+
+
+    <!-- SOIL HEALTH -->
+
+    <div class="section-title">
+
+        ❤️ Soil Health
+
+    </div>
+
+
+    <div class="health-card">
+
+        <div class="health-content">
+
+            <div class="circle">
+
+                <div class="circle-inner">
+
+                    <div class="circle-number">
+                        85
+                    </div>
+
+                    <div class="circle-text">
+                        GOOD
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="health-info">
+
+                <h3>
+                    Healthy Soil 🌱
+                </h3>
+
+                <p>
+                    The detected soil condition
+                    is suitable for crop production.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CROP RECOMMENDATION -->
+
+    <div class="section-title">
+
+        🌾 Crop Recommendation
+
+    </div>
+
+
+    <div class="recommendation-message">
+
+        🌱 Based on the detected
+        <strong>Loam Soil</strong>,
+        soil moisture, pH, and temperature,
+        these crops are recommended.
+
+    </div>
+
+
+    <div class="recommendation">
+
+
+        <!-- CORN -->
+
+        <div class="crop best">
+
+            <div class="crop-left">
+
+                <div class="crop-icon">
+                    🌽
+                </div>
+
+                <div>
+
+                    <div class="crop-name">
+                        Corn
+                    </div>
+
+                    <div class="crop-type">
+                        Zea mays
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="crop-score">
+                95%
+            </div>
+
+        </div>
+
+
+        <!-- TOMATO -->
+
+        <div class="crop">
+
+            <div class="crop-left">
+
+                <div class="crop-icon">
+                    🍅
+                </div>
+
+                <div>
+
+                    <div class="crop-name">
+                        Tomato
+                    </div>
+
+                    <div class="crop-type">
+                        Solanum lycopersicum
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="crop-score">
+                90%
+            </div>
+
+        </div>
+
+
+        <!-- LETTUCE -->
+
+        <div class="crop">
+
+            <div class="crop-left">
+
+                <div class="crop-icon">
+                    🥬
+                </div>
+
+                <div>
+
+                    <div class="crop-name">
+                        Lettuce
+                    </div>
+
+                    <div class="crop-type">
+                        Lactuca sativa
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="crop-score">
+                82%
+            </div>
+
+        </div>
+
+
+        <!-- CARROT -->
+
+        <div class="crop">
+
+            <div class="crop-left">
+
+                <div class="crop-icon">
+                    🥕
+                </div>
+
+                <div>
+
+                    <div class="crop-name">
+                        Carrot
+                    </div>
+
+                    <div class="crop-type">
+                        Daucus carota
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="crop-score">
+                75%
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function analyzeSoil() {
+
+    const loading =
+        document.getElementById("loading");
+
+    loading.style.display = "block";
+
+
+    setTimeout(function() {
+
+        loading.style.display = "none";
+
+
+        /*
+            SAMPLE RESULT
+
+            Later, these values can come
+            directly from your ESP32.
+        */
+
+        const moisture = 75;
+        const ph = 6.5;
+        const temperature = 25;
+
+
+        /*
+            SIMPLE SOIL CLASSIFICATION
+
+            This is only a demonstration.
+        */
+
+        let soilType;
+        let description;
+
+
+        if (
+            ph >= 6.0 &&
+            ph <= 7.0 &&
+            moisture >= 40 &&
+            moisture <= 80
+        ) {
+
+            soilType = "Loam Soil";
+
+            description =
+                "Loam soil is a balanced soil containing " +
+                "sand, silt, and clay. It has good drainage " +
+                "and is suitable for many crops.";
+
+        }
+
+        else if (ph < 6.0) {
+
+            soilType = "Acidic Soil";
+
+            description =
+                "The soil has a low pH and is acidic. " +
+                "Some crops may require soil improvement " +
+                "before planting.";
+
+        }
+
+        else if (ph > 7.0) {
+
+            soilType = "Alkaline Soil";
+
+            description =
+                "The soil has a higher pH and is alkaline. " +
+                "Choose crops that can tolerate alkaline soil.";
+
+        }
+
+        else {
+
+            soilType = "Unknown Soil Type";
+
+            description =
+                "The system needs more soil information " +
+                "to classify the soil.";
+
+        }
+
+
+        document.getElementById("soilType")
+            .innerText = soilType;
+
+
+        document.getElementById("soilDescription")
+            .innerText = description;
+
+
+        alert(
+            "SOIL DETECTION COMPLETE 🌱\n\n" +
+
+            "Detected Soil: " +
+            soilType +
+
+            "\n\nRecommended Crop:\n" +
+
+            "🌽 Corn — 95% Suitable\n" +
+
+            "🍅 Tomato — 90% Suitable\n" +
+
+            "🥬 Lettuce — 82% Suitable\n" +
+
+            "🥕 Carrot — 75% Suitable"
+        );
+
+
+    }, 1500);
+
+}
+
+</script>
+
+</body>
+</html>
